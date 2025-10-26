@@ -1,0 +1,46 @@
+---
+// src/components/Footer.astro
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-gray-50 border-t border-gray-200">
+  <div
+    class="container mx-auto px-4 sm:px-6 lg:px-8 py-8"
+  >
+    <div
+      class="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left"
+    >
+      <!-- Left Side: Copyright -->
+      <div class="text-gray-600 text-sm">
+        Developed with
+        <span class="text-red-500" title="love">&hearts;</span>
+        by
+        <a
+          href="https://codeefly.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-bold text-gray-900 hover:text-red-600 transition-colors"
+        >
+          Codeefly
+        </a>
+        &copy; {currentYear}
+      </div>
+
+      <!-- Right Side: Links -->
+      <nav class="flex gap-6 md:gap-8">
+        <a
+          href="/terms"
+          class="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors"
+        >
+          Terms & Condition
+        </a>
+        <a
+          href="/privacy"
+          class="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors"
+        >
+          Privacy Policy
+        </a>
+      </nav>
+    </div>
+  </div>
+</footer>
