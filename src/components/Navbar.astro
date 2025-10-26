@@ -1,0 +1,168 @@
+---
+// This 'currentPage' prop is used to highlight the active link.
+// When you use this component in your layout, you'll pass in the page title.
+// Example: <Navbar currentPage="Home" />
+export interface Props {
+  currentPage?: string;
+}
+
+const { currentPage } = Astro.props;
+
+const navLinks = [
+  { href: "/", name: "Home" },
+  { href: "/about", name: "About" },
+  { href: "/portfolio", name: "Portfolio" },
+  { href: "/service", name: "Service" },
+  { href: "/blog", name: "Blog" },
+  { href: "/contact", name: "Contact" },
+];
+
+// Define the colors from your screenshot
+const activeColor = "text-red-600";
+const hoverColor = "hover:text-red-600";
+const defaultColor = "text-gray-900";
+---
+
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-24">
+      <!-- Logo -->
+      <a href="/" class="flex-shrink-0 flex items-center">
+        <!-- I've recreated your logo with HTML and Tailwind -->
+        <span
+          class="relative flex items-center justify-center w-10 h-10 bg-red-600 rounded-full"
+        >
+          <span class="absolute text-white font-bold text-3xl italic -mr-1"
+            >A</span
+          >
+        </span>
+        <span class="text-3xl font-bold text-gray-900 italic">zi</span>
+        <span class="text-3xl font-bold text-red-600 italic">M</span>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <div class="hidden md:flex md:items-center md:space-x-8">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class={`font-medium ${
+                link.name === currentPage ? activeColor : defaultColor
+              } ${hoverColor} transition-colors`}
+            >
+              {link.name}
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- Desktop Download CV Button -->
+      <div class="hidden md:block">
+        <a
+          href="/cv.pdf"
+          target="_blank"
+          class="inline-flex items-center px-6 py-3 border-2 border-red-600 text-red-600 font-bold rounded-full hover:bg-red-600 hover:text-white transition-all duration-300"
+        >
+          Download CV
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button (Hamburger) -->
+      <div class="md:hidden flex items-center">
+        <button
+          id="mobile-menu-button"
+          class="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-red-600 focus:outline-none"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Open main menu</span>
+          <!-- Heroicon: menu -->
+          <svg
+            class="block h-8 w-8"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <!-- Heroicon: x (hidden by default) -->
+          <svg
+            class="hidden h-8 w-8"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 
+    Mobile Menu
+    This is hidden by default and toggled with JavaScript.
+  -->
+  <div class="md:hidden hidden" id="mobile-menu">
+    <div class="px-2 pt-2 pb-8 space-y-4 sm:px-3 text-center">
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            class={`block px-3 py-2 rounded-md text-xl font-medium ${
+              link.name === currentPage ? activeColor : defaultColor
+            } ${hoverColor} transition-colors`}
+          >
+            {link.name}
+          </a>
+        ))
+      }
+      <a
+        href="/cv.pdf"
+        target="_blank"
+        class="block w-3/4 mx-auto mt-6 px-6 py-3 border-2 border-red-600 text-red-600 font-bold rounded-full hover:bg-red-600 hover:text-white transition-all duration-300"
+      >
+        Download CV
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // JavaScript for toggling the mobile menu
+  const menuButton = document.getElementById("mobile-menu-button");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  // We must check if the elements exist before using them
+  if (menuButton && mobileMenu) {
+    const icons = menuButton.querySelectorAll("svg");
+
+    menuButton.addEventListener("click", () => {
+      // Toggle the 'hidden' class on the menu
+      mobileMenu.classList.toggle("hidden");
+
+      // Toggle the 'hidden' class on the hamburger/close icons
+      icons[0].classList.toggle("hidden"); // Toggle hamburger icon
+      icons[0].classList.toggle("block");
+      icons[1].classList.toggle("hidden"); // Toggle 'x' icon
+      icons[1].classList.toggle("block");
+
+      // Toggle the aria-expanded attribute
+      const isExpanded = menuButton.getAttribute("aria-expanded") === "true";
+      menuButton.setAttribute("aria-expanded", String(!isExpanded));
+    });
+  }
+</script>
+

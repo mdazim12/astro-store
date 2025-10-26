@@ -2,6 +2,9 @@
 import astroLogo from '../assets/astro.svg';
 import background from '../assets/background.svg';
 import "../assets/app.css";
+import Counter from '../components/react/Counter.jsx';
+
+import Navbar from './Navbar.astro';
 ---
 
 <div id="container">
@@ -98,6 +101,17 @@ import "../assets/app.css";
     sec
   </div>
 </div>
+
+
+
+
+<h1>Welcome to my store</h1>
+
+    <p>Here is an interactive React component:</p>
+
+    <Counter client:load />
+	<Navbar />
+
 	<!-- <main>
 		<section id="hero">
 			<a href="https://astro.build"
