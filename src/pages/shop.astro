@@ -1,0 +1,87 @@
+---
+// src/pages/shop.astro
+import Layout from '../layouts/Layout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import "../assets/app.css";
+
+
+// --- 1. The GraphQL Query ---
+// This query gets all the data your ProductCard needs
+const GET_ALL_PRODUCTS_QUERY = `
+  query GetAllProducts {
+    products(first: 20) {
+      nodes {
+        id
+        databaseId
+        name
+        slug
+        onSale
+        image {
+          sourceUrl
+          altText
+        }
+        # --- THIS IS THE FIX ---
+        # We must use an inline fragment to get price data
+        ... on SimpleProduct {
+          price(format: FORMATTED)
+          regularPrice(format: FORMATTED)
+        }
+        ... on VariableProduct {
+          price(format: FORMATTED)
+          regularPrice(format: FORMATTED)
+        }
+        # ---------------------
+      }
+    }
+  }
+`;
+
+// --- 2. Fetch the Data ---
+const API_URL = "https://store.insectsexpert.com/graphql"; // Your WordPress URL
+let products = [];
+
+try {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: GET_ALL_PRODUCTS_QUERY })
+  });
+  
+  const json = await response.json();
+  
+  if (json.data && json.data.products) {
+    // Filter out any products that don't have a price (like Grouped products)
+    products = json.data.products.nodes.filter(p => p.price);
+  }
+} catch (error) {
+  console.error("Error fetching products:", error);
+}
+---
+
+<!-- --- 3. Render the Page --- -->
+<Layout title="Shop">
+  <div class="container mx-auto p-4 md:p-8">
+    <h1 class="text-3xl font-bold mb-6">Shop All Products</h1>
+
+    <!-- 
+      This is the responsive grid for your product cards.
+      - 1 column on mobile
+      - 2 columns on small screens (sm:)
+      - 3 columns on medium screens (md:)
+      - 4 columns on large screens (lg:)
+    -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      
+      <!-- 
+        We loop through the 'products' array.
+        For each 'product' object, we render a ProductCard component
+        and pass the entire 'product' object into its 'product' prop.
+      -->
+      {products.map((product) => (
+        <ProductCard product={product} />
+      ))}
+
+    </div>
+  </div>
+</Layout>
+

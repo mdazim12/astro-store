@@ -1,0 +1,106 @@
+---
+// src/components/ProductCard.astro
+// This component receives a single 'product' object as a prop.
+import AddToCartButton from '../components/react/AddToCartButton.jsx';
+import "../assets/app.css";
+
+// 1. Define the 'Props' (the data this component needs)
+// This matches the data we get from our GraphQL query.
+export interface Props {
+  product: {
+    id: string;
+    databaseId: number; // The simple ID for 'Add to Cart'
+    name: string;
+    slug: string;
+    onSale: boolean;
+    price: string;        // The current price (could be sale price)
+    regularPrice: string; // The original price
+    image?: { // The '?' makes the image optional
+      sourceUrl: string;
+      altText?: string;
+    };
+  };
+}
+
+const { product } = Astro.props;
+
+// 2. --- SAFETY CHECK ---
+// If 'product' is missing, render nothing.
+// This permanently fixes the "Cannot read properties of undefined (reading 'onSale')" error.
+if (!product) {
+  return null;
+}
+// ----------------------
+
+// 3. Calculate discount percentage (like in your screenshot)
+let discountPercent = 0;
+if (product.onSale) {
+  // Convert price strings like "$789.99" to simple numbers
+  const cleanRegularPrice = parseFloat(product.regularPrice.replace(/[^0-9.]/g, ''));
+  const cleanPrice = parseFloat(product.price.replace(/[^0-9.]/g, ''));
+  
+  if (cleanRegularPrice > 0 && cleanPrice < cleanRegularPrice) {
+    discountPercent = Math.round(((cleanRegularPrice - cleanPrice) / cleanRegularPrice) * 100);
+  }
+}
+---
+
+<!-- 4. The HTML & Tailwind/DaisyUI for the card -->
+<div class="card bg-base-100 shadow-xl border border-gray-200 transition-all duration-300 hover:shadow-2xl relative group">
+  
+  <!-- Discount Badge (only if on sale) -->
+  {product.onSale && discountPercent > 0 && (
+    <div class="badge badge-error absolute top-4 left-4 z-10 font-bold">
+      -{discountPercent}%
+    </div>
+  )}
+
+  <!-- Product Image -->
+  <figure class="px-4 pt-4 h-56">
+    <a href={`/product/${product.slug}`} class="block w-full h-full">
+      <img
+        src={product.image?.sourceUrl || 'https://placehold.co/300x300'}
+        alt={product.image?.altText || product.name}
+        class="w-full h-full object-contain rounded-xl"
+      />
+    </a>
+  </figure>
+
+  <!-- Card Body (Name, Price, Button) -->
+  <div class="card-body items-center text-center px-4 py-6">
+    
+    <!-- Product Name -->
+    <!-- We set a fixed height to keep all cards aligned -->
+    <h2 class="card-title text-lg h-14 overflow-hidden">
+      <a href={`/product/${product.slug}`} class="hover:text-primary transition-colors">
+        {product.name}
+      </a>
+    </h2>
+
+    <!-- Price -->
+    <div class="flex items-baseline gap-2 mt-2">
+      <!-- The current price (red if on sale) -->
+      <span class:list={["text-xl font-bold", product.onSale ? "text-error" : "text-primary"]}>
+        {product.price}
+      </span>
+      
+      <!-- The original price (only if on sale) -->
+      {product.onSale && (
+        <span class="text-sm text-gray-400 line-through">
+          {product.regularPrice}
+        </span>
+      )}
+    </div>
+
+    <!-- Add to Cart Button -->
+    <div class="card-actions mt-4 w-full">
+      <!-- 
+        Here is our interactive React button!
+        - 'client:visible' makes it load JS only when scrolled into view.
+        - We pass the 'databaseId' (e.g., 2717) to the React component.
+      -->
+      <AddToCartButton client:visible productId={product.databaseId} />
+    </div>
+  </div>
+</div>
+
